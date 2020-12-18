@@ -1,0 +1,26 @@
+{
+  "name": "@heymarco/sass-selector",
+  "version": "1.0.1",
+  "description": "A sass utility for manipulating selectors.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heyymarco/sass-selector.git"
+  },
+  "keywords": [
+    "sass",
+    "utility",
+    "selector"
+  ],
+  "author": "HeyMarco",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heyymarco/sass-selector/issues"
+  },
+  "homepage": "https://github.com/heyymarco/sass-selector#readme",
+  "dependencies": {
+    "@heymarco/sass-string": "^1.0.1"
+  }
+}

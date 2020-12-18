@@ -1,0 +1,76 @@
+// development:
+// @use "node_modules/@heymarco/sass-string/index" as string;
+
+// production:
+@use "../../../node_modules/@heymarco/sass-string/index" as string;
+
+
+
+@use "sass:list" as list;
+
+
+
+@function make-append($selector) {
+    $token: "." ":" "#" "_" "-" "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+    $bracket: 0;
+    $has-comma: true;
+    $index: 1;
+    @while ($index <= string.length($selector)) {
+        $char: string.slice($selector, $index, $index);
+        
+        @if ($char == ",") {
+            $has-comma: true;
+        }
+        @else if($char != " ") {
+            @if (($char == "(") or ($char == "{") or ($char == "[")) { $bracket: $bracket + 1; }
+            @else if (($char == ")") or ($char == "}") or ($char == "]")) { $bracket: $bracket - 1; }
+            @else if ($bracket == 0) {
+                @if (list.index($token, $char) != null) {
+                    @if ($has-comma == true) {
+                        $selector: string.slice($selector, 1, $index - 1) + "&" + string.slice($selector, $index);
+                    }
+                }
+            }
+
+            $has-comma: false;
+        }
+
+        $index: $index + 1;
+    }
+
+    @return $selector;
+}
+
+
+
+@mixin selector($selector) {
+    @if (string.not-empty($selector)) { #{$selector} {
+        @content;
+    }}
+    @else {
+        @content;
+    }
+}
+
+
+
+@mixin append($sub-selector) {
+    @include selector(make-append($sub-selector)) {
+        @content;
+    }
+}
+
+
+
+@mixin unify($base-selector, $sub-selector) {
+    @if (string.not-empty($base-selector)) {
+        @include selector($base-selector) { @include append($sub-selector) {
+            @content;
+        }}
+    }
+    @else {
+        @include selector($sub-selector) {
+            @content;
+        }
+    }
+}
