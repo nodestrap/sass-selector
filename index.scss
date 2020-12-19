@@ -10,40 +10,84 @@
 
 
 
-@function make-append($selector) {
-    $token: "." ":" "#" "_" "-" "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+@function wrap-each($selector, $wrap-start, $wrap-end) {
     $bracket: 0;
     $has-comma: true;
     $index: 1;
+    $sel-start: null;
+    $sel-end: null;
+    
+    $char: string.slice($selector, string.length($selector));
+    $add-terminator: false;
+    @if (($char != ",") && ($char != " ")) {
+        $selector: $selector + " ";
+        $add-terminator: true;
+    }
+
+    $wrap-length: string.length($wrap-start) + string.length($wrap-end);
+
     @while ($index <= string.length($selector)) {
         $char: string.slice($selector, $index, $index);
         
-        @if ($char == ",") {
-            $has-comma: true;
-        }
-        @else if($char != " ") {
-            @if (($char == "(") or ($char == "{") or ($char == "[")) { $bracket: $bracket + 1; }
-            @else if (($char == ")") or ($char == "}") or ($char == "]")) { $bracket: $bracket - 1; }
-            @else if ($bracket == 0) {
-                @if (list.index($token, $char) != null) {
-                    @if ($has-comma == true) {
-                        $selector: string.slice($selector, 1, $index - 1) + "&" + string.slice($selector, $index);
-                    }
-                }
+        @if (($char == ",") or ($char == " ")) {
+            @if (($bracket == 0) and ($sel-end != null)) {
+                $selector:
+                    string.slice($selector, 1, $sel-start - 1)
+                    +
+                    $wrap-start
+                    +
+                    string.slice($selector, $sel-start, $sel-end)
+                    +
+                    $wrap-end
+                    +
+                    string.slice($selector, $sel-end + 1)
+                    ;
+                
+                $sel-start: null;
+                $sel-end: null;
+                $index: $index + $wrap-length;
             }
+        }
+        @else {
+            @if (($char == "(") or ($char == "{") or ($char == "[")) {
+                $bracket: $bracket + 1;
+            }
+            @else if (($char == ")") or ($char == "}") or ($char == "]")) {
+                $bracket: $bracket - 1;
 
-            $has-comma: false;
+                @if ($bracket == 0) { $sel-end: $index; }
+            }
+            @else if ($bracket == 0) {
+                @if ($sel-start == null) { $sel-start: $index; }
+                @else { $sel-end: $index; }
+            }
         }
 
         $index: $index + 1;
     }
 
+    @if ($add-terminator) { @return string.slice($selector, 1, -2); }
     @return $selector;
+}
+
+@function make-append($selector) {
+    $wrap-start: "&";
+    $wrap-end: "";
+
+    @return wrap-each($selector, $wrap-start, $wrap-end);
+}
+
+@function make-not($selector, $append: false) {
+    $wrap-start: ":not(";
+    $wrap-end: ")";
+    @if ($append) { $wrap-start: "&" + $wrap-start; }
+
+    @return wrap-each($selector, $wrap-start, $wrap-end);
 }
 
 
 
-@mixin selector($selector) {
+@mixin is($selector) {
     @if (string.not-empty($selector)) { #{$selector} {
         @content;
     }}
@@ -52,10 +96,22 @@
     }
 }
 
+@mixin not($selector) {
+    @include is(make-not($selector)) {
+        @content;
+    }
+}
 
 
-@mixin append($sub-selector) {
-    @include selector(make-append($sub-selector)) {
+
+@mixin append($selector) {
+    @include is(make-append($selector)) {
+        @content;
+    }
+}
+
+@mixin append-not($selector) {
+    @include is(make-not($selector, true)) {
         @content;
     }
 }
@@ -64,12 +120,12 @@
 
 @mixin unify($base-selector, $sub-selector) {
     @if (string.not-empty($base-selector)) {
-        @include selector($base-selector) { @include append($sub-selector) {
+        @include is($base-selector) { @include append($sub-selector) {
             @content;
         }}
     }
     @else {
-        @include selector($sub-selector) {
+        @include is($sub-selector) {
             @content;
         }
     }
