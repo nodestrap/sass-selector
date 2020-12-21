@@ -59,7 +59,7 @@
             }
             @else if ($bracket == 0) {
                 @if ($sel-start == null) { $sel-start: $index; }
-                @else { $sel-end: $index; }
+                $sel-end: $index;
             }
         }
 
