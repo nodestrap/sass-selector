@@ -70,6 +70,49 @@
     @return $selector;
 }
 
+@function parse-each($selector) {
+    $bracket: 0;
+    $has-comma: true;
+    $sel-start: null;
+    $sel-end: null;
+
+    $results: ();
+
+    $selector: $selector + " ";
+    @for $index from 1 through string.length($selector) {
+        $char: string.slice($selector, $index, $index);
+        
+        @if (($char == ",") or ($char == " ")) {
+            @if (($bracket == 0) and ($sel-end != null)) {
+                $result: string.slice($selector, $sel-start, $sel-end);
+
+                @if (list.index($results, $result) == null) {
+                    $results: list.append($results, $result);
+                }
+                
+                $sel-start: null;
+                $sel-end: null;
+            }
+        }
+        @else {
+            @if (($char == "(") or ($char == "{") or ($char == "[")) {
+                $bracket: $bracket + 1;
+            }
+            @else if (($char == ")") or ($char == "}") or ($char == "]")) {
+                $bracket: $bracket - 1;
+
+                @if ($bracket == 0) { $sel-end: $index; }
+            }
+            @else if ($bracket == 0) {
+                @if ($sel-start == null) { $sel-start: $index; }
+                $sel-end: $index;
+            }
+        }
+    }
+
+    @return $results;
+}
+
 @function make-append($selector) {
     $wrap-start: "&";
     $wrap-end: "";
@@ -127,6 +170,21 @@
     @else {
         @include is($sub-selector) {
             @content;
+        }
+    }
+}
+
+
+
+@mixin nested-self($selector, $parentheses: false) {
+    @each $item in parse-each($selector) {
+        @include is($item) {
+            @if ($parentheses) { > { @include is($item) {
+                @content;
+            }}}
+            @else { @include is($item) {
+                @content;
+            }}
         }
     }
 }
