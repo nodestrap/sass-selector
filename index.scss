@@ -19,7 +19,7 @@
     
     $char: string.slice($selector, string.length($selector));
     $add-terminator: false;
-    @if (($char != ",") && ($char != " ")) {
+    @if (($char != ",") and ($char != " ")) {
         $selector: $selector + " ";
         $add-terminator: true;
     }
@@ -120,14 +120,6 @@
     @return wrap-each($selector, $wrap-start, $wrap-end);
 }
 
-@function make-not($selector, $append: false) {
-    $wrap-start: ":not(";
-    $wrap-end: ")";
-    @if ($append) { $wrap-start: "&" + $wrap-start; }
-
-    @return wrap-each($selector, $wrap-start, $wrap-end);
-}
-
 
 
 @mixin is($selector) {
@@ -140,7 +132,12 @@
 }
 
 @mixin not($selector) {
-    @include is(make-not($selector)) {
+    $sel-not: "";
+    @each $item in parse-each($selector) {
+        $sel-not: $sel-not + ":not(#{$item})";
+    }
+
+    @include is($sel-not) {
         @content;
     }
 }
@@ -154,21 +151,34 @@
 }
 
 @mixin append-not($selector) {
-    @include is(make-not($selector, true)) {
+    $sel-not: "";
+    @each $item in parse-each($selector) {
+        $sel-not: $sel-not + ":not(#{$item})";
+    }
+
+    @include append($sel-not) {
         @content;
     }
 }
 
 
 
-@mixin unify($base-selector, $sub-selector) {
-    @if (string.not-empty($base-selector)) {
-        @include is($base-selector) { @include append($sub-selector) {
+@mixin unify($selector) {
+    $sel-comb: "";
+    @each $item in parse-each($selector) {
+        @if (list.index(("." ":"), string.slice($item, 1, 1)) != null) {
+            $sel-comb: $sel-comb + $item;
+        }
+    }
+
+
+    @if (string.not-empty(#{&})) {
+        @include append($sel-comb) {
             @content;
-        }}
+        }
     }
     @else {
-        @include is($sub-selector) {
+        @include is($selector) {
             @content;
         }
     }
