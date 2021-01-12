@@ -1,11 +1,4 @@
-// development:
-// @use "node_modules/@heymarco/sass-string/index" as string;
-
-// production:
-@use "../../../node_modules/@heymarco/sass-string/index" as string;
-
-
-
+@use "@heymarco/sass-string/src/index" as string;
 @use "sass:list" as list;
 
 
@@ -186,15 +179,15 @@
 
 
 
-@mixin nested-self($selector, $parentheses: false) {
-    @each $item in parse-each($selector) {
-        @include is($item) {
-            @if ($parentheses) { > { @include is($item) {
-                @content;
-            }}}
-            @else { @include is($item) {
-                @content;
-            }}
-        }
-    }
+@mixin nested-self($parentheses: false) {
+    @at-root { @each $item in parse-each(&) {
+            @include is($item) {
+                @if ($parentheses) { > { @include is($item) {
+                    @content;
+                }}}
+                @else { @include is($item) {
+                    @content;
+                }}
+            }
+    }}
 }
