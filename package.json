@@ -1,11 +1,10 @@
 {
   "name": "@heymarco/sass-selector",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A sass utility for manipulating selectors.",
   "scripts": {
-    "test": "sass --load-path=node_modules test.scss:test.css --no-source-map",
-    "watch": "sass --load-path=node_modules src:dist --style compressed --watch",
-    "build": "sass --load-path=node_modules src:dist --style compressed"
+    "test": "tilde-sass --file test/*.scss --outFile test/",
+    "compile": "tilde-sass --file src/*.scss --outFile dist/ --outputStyle compressed"
   },
   "repository": {
     "type": "git",
@@ -23,9 +22,9 @@
   },
   "homepage": "https://github.com/heyymarco/sass-selector#readme",
   "dependencies": {
-    "@heymarco/sass-string": "^2.0.1"
+    "@heymarco/sass-string": "^2.0.4"
   },
   "devDependencies": {
-    "sass": "^1.32.4"
+    "tilde-sass": "^1.0.0"
   }
 }
