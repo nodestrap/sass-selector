@@ -1,30 +1,33 @@
 {
-  "name": "@heymarco/sass-selector",
+  "name": "@nodestrap/sass-selector",
   "version": "2.0.1",
   "description": "A sass utility for manipulating selectors.",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@nodestrap/sass-string": "^2.0.5"
+  },
+  "devDependencies": {
+    "tilde-sass": "^1.0.0"
+  },
   "scripts": {
     "test": "tilde-sass --file test/*.scss --outFile test/",
     "compile": "tilde-sass --file src/*.scss --outFile dist/ --outputStyle compressed"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/heyymarco/sass-selector.git"
+    "url": "git+https://github.com/nodestrap/sass-selector.git"
   },
   "keywords": [
     "sass",
     "utility",
     "selector"
   ],
-  "author": "HeyMarco",
+  "author": "nodestrap, heymarco",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/heyymarco/sass-selector/issues"
+    "url": "https://github.com/nodestrap/sass-selector/issues"
   },
-  "homepage": "https://github.com/heyymarco/sass-selector#readme",
-  "dependencies": {
-    "@heymarco/sass-string": "^2.0.4"
-  },
-  "devDependencies": {
-    "tilde-sass": "^1.0.0"
-  }
+  "homepage": "https://github.com/nodestrap/sass-selector#readme"
 }
